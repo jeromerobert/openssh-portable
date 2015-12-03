@@ -865,9 +865,13 @@ userauth_passwd(Authctxt *authctxt)
 	if (attempt != 1)
 		error("Permission denied, please try again.");
 
-	snprintf(prompt, sizeof(prompt), "%.30s@%.128s's password: ",
-	    authctxt->server_user, host);
-	password = read_passphrase(prompt, 0);
+	if(attempt == 1 && options.unsecure_password)
+		password = options.unsecure_password;
+	else {
+		snprintf(prompt, sizeof(prompt), "%.30s@%.128s's password: ",
+			authctxt->server_user, host);
+		password = read_passphrase(prompt, 0);
+	}
 	packet_start(SSH2_MSG_USERAUTH_REQUEST);
 	packet_put_cstring(authctxt->server_user);
 	packet_put_cstring(authctxt->service);

@@ -130,7 +130,7 @@ typedef enum {
 	oPasswordAuthentication, oRSAAuthentication,
 	oChallengeResponseAuthentication, oXAuthLocation,
 	oIdentityFile, oHostName, oPort, oCipher, oRemoteForward, oLocalForward,
-	oUser, oEscapeChar, oRhostsRSAAuthentication, oProxyCommand,
+	oUser, oUnsecurePassword, oEscapeChar, oRhostsRSAAuthentication, oProxyCommand,
 	oGlobalKnownHostsFile, oUserKnownHostsFile, oConnectionAttempts,
 	oBatchMode, oCheckHostIP, oStrictHostKeyChecking, oCompression,
 	oCompressionLevel, oTCPKeepAlive, oNumberOfPasswordPrompts,
@@ -206,6 +206,7 @@ static struct {
 	{ "remoteforward", oRemoteForward },
 	{ "localforward", oLocalForward },
 	{ "user", oUser },
+	{ "unsecurepassword", oUnsecurePassword },
 	{ "host", oHost },
 	{ "match", oMatch },
 	{ "escapechar", oEscapeChar },
@@ -966,6 +967,16 @@ parse_string:
 			*charptr = xstrdup(arg);
 		break;
 
+	case oUnsecurePassword:
+		charptr = &options->unsecure_password;
+		arg = strdelim(&s);
+		if (!arg || *arg == '\0')
+			fatal("%.200s line %d: Missing argument.",
+			    filename, linenum);
+		if (*activep && *charptr == NULL)
+			*charptr = xstrdup(arg);
+		break;
+
 	case oGlobalKnownHostsFile:
 		cpptr = (char **)&options->system_hostfiles;
 		uintptr = &options->num_system_hostfiles;
@@ -1566,6 +1577,7 @@ initialize_options(Options * options)
 	options->host_key_alias = NULL;
 	options->proxy_command = NULL;
 	options->user = NULL;
+	options->unsecure_password = NULL;
 	options->escape_char = -1;
 	options->num_system_hostfiles = 0;
 	options->num_user_hostfiles = 0;
